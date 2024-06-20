@@ -18,16 +18,15 @@
   hexdump,
   libusbsio,
   oscrypto,
+  packaging,
   platformdirs,
   prettytable,
-  pylink-square,
   pyocd,
-  pyocd-pemicro,
-  pypemicro,
   pyserial,
   requests,
   ruamel-yaml,
   setuptools,
+  setuptools-scm,
   sly,
   spsdk,
   testers,
@@ -40,19 +39,20 @@
 
 buildPythonPackage rec {
   pname = "spsdk";
-  version = "2.1.1";
+  version = "2.2.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "nxp-mcuxpresso";
     repo = "spsdk";
     rev = "refs/tags/${version}";
-    hash = "sha256-cWz2zML/gb9l2C5VEBti+nX3ZLyGbLFyLZGjk5GfTJw=";
+    hash = "sha256-2CFxJAP87ysly0i4AfODbwUt5W287+OK7fatdPco7e4=";
   };
 
   nativeBuildInputs = [
     pythonRelaxDepsHook
     setuptools
+    setuptools-scm
   ];
 
   pythonRelaxDeps = [
@@ -62,6 +62,13 @@ buildPythonPackage rec {
     "requests"
     "typing-extensions"
   ];
+
+  # Remove unneeded unfree package. pyocd-pemicro is only used when
+  # generating a pyinstaller package, which we don't do.
+  postPatch = ''
+    substituteInPlace ./requirements.txt \
+      --replace "pyocd-pemicro<1.2,>=1.1.5" ""
+  '';
 
   propagatedBuildInputs = [
     asn1crypto
@@ -79,12 +86,10 @@ buildPythonPackage rec {
     hexdump
     libusbsio
     oscrypto
+    packaging
     platformdirs
     prettytable
-    pylink-square
     pyocd
-    pyocd-pemicro
-    pypemicro
     pyserial
     requests
     ruamel-yaml
